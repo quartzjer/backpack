@@ -81,6 +81,20 @@ app.get('/callback', function(req, res) {
   });
 });
 
+var pack_csv = require("./pack_csv");
+
+app.get('/csv', function(req, res) {
+  var type = req.query.type;
+  var token = req.query.token;
+  if(!type || !token) return res.send("missing type/token :(", 500);
+  request.get({uri:apiBaseUrl+'/types/'+type'?access_token='+token, json:true}, function(err, resp, entries) {
+    if(err) return res.send(err, 500);
+    if(!entries || entries.length == 0) return res.send("no entries", 500);
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end(pack_csv(entries, req.query));
+  });
+});
+
 app.listen(port);
 
 console.log(sprintf('Listening at %s using API endpoint %s.', hostBaseUrl, apiBaseUrl));
