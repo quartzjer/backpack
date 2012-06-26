@@ -55,7 +55,9 @@
 
       <hr />
 
-      <button class='btn btn-primary'>Export</button>
+      <button id='do_export' class='btn btn-primary'>Export</button>
+
+      <a id='export_link'>Download your data</a>
 
       <footer style='margin-top:20px'>
         <a href='https://singly.com'><img src='https://dev.singly.com/images/singly-button.png' /></a>
@@ -69,6 +71,16 @@
        while ((m=re.exec(document.location.search)) != null) r.push(m[1]);
        return r;
     }
+
+    $(function() {
+
+    $("#export_link").hide();
+    $("#do_export").click(function() {
+      var type = $("#export_service_type");
+      if (!type) return;
+      $("#export_link").attr("href", "http://" + window.location.host + "/csv?type=" + type.val().toLowerCase() + "&token=" + $.cookie("token"));
+      $("#export_link").show();
+    });
 
     $.getJSON("https://api.singly.com/services", function(data) {
         var redirURI = "http://" + window.location.host + "/callback";
@@ -84,6 +96,8 @@
         } else {
           drawServices();
         }
+    });
+
     });
   </script>
 </body>
