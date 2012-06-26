@@ -71,16 +71,11 @@ app.get('/callback', function(req, res) {
     req.session.access_token = body.access_token;
 
     // Fetch the user's service profile data
-    getProtectedResource('/profiles', req.session, function(err, profilesBody) {
-      try {
-        profilesBody = JSON.parse(profilesBody);
-      } catch(parseErr) {
-        return res.send(parseErr, 500);
-      }
+    request.get({uri:apiBaseUrl+'/profiles?access_token='+body.access_token, json:true}, function(err, resp, profilesBody) {
+      if(err || !profilesBody) return res.send(err, 500);
 
       req.session.profiles = profilesBody;
-
-      res.cookie("token", req.session.access_token);
+      res.cookie("token", body.access_token);
       res.redirect('/');
     });
   });
