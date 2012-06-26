@@ -46,6 +46,11 @@ app.configure('production', function() {
   app.use(express.errorHandler());
 });
 
+app.get("/reset", function(req, res) {
+  res.cookie("token", "");
+  res.redirect("/");
+});
+
 app.get('/callback', function(req, res) {
   var data = {
     client_id: clientId,
@@ -67,6 +72,7 @@ app.get('/callback', function(req, res) {
       return res.send(parseErr, 500);
     }
 
+    console.log("%j", body);
     // Save the access_token for future API requests
     req.session.access_token = body.access_token;
 

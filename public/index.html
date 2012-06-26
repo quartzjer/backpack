@@ -79,7 +79,8 @@
           });
         }
         if ($.cookie("token") !== null) {
-          $.getJSON("https://api.singly.com/profiles?access_token=" + $.cookie("token"), drawServices);
+          $.getJSON("https://api.singly.com/profiles?access_token=" + $.cookie("token"), drawServices)
+            .error(function() { drawServices(); });
         } else {
           drawServices();
         }
