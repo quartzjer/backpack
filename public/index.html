@@ -1,1 +1,89 @@
-hi
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>Locker Project Backpack</title>
+	<!--[if IE]>
+		<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+  <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css" media="screen" charset="utf-8">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/js/cookie.js" type="text/javascript" charset="utf-8"></script>
+  <style type="text/css" media="screen">
+    .authed {
+      text-decoration:line-through;
+    }
+  </style>
+</head>
+
+<body id="home">
+
+  <div class='container'>
+    <div class='offset3 span6'>
+      <header style='margin-top:20px'>
+        <h1>Locker Project Backpack</h1>
+        <em>The Simple Way to Grab Your Data and Go</em>
+      </header>
+
+      <hr />
+
+      <p>We all have a lot of data out in the cloud, but sometimes we just want to use it.</p>
+      <p>Backpack makes this easy by allowing you to connect to your services, select the data that you want, and then export it in a way that makes sense.</p>
+      <p>To get started connect to the services you use:</p>
+
+      <span id='services-waiting' style='font-style:italic'>Retrieving services...</span>
+      <ul id='services'>
+      </ul>
+
+      <hr />
+
+      <p>Pick the data type that you would like to export:</p>
+      <select id='export_service_type'>
+        <option>Contacts</option>
+      </select>
+
+      <hr />
+
+      <p>Pick your output settings:</p>
+      <div id='contacts_settings'>
+        Output as:
+        <select id='export_data_type'>
+          <option>CSV</option>
+        </select>
+      </div>
+
+      <hr />
+
+      <button class='btn btn-primary'>Export</button>
+
+      <footer style='margin-top:20px'>
+        <a href='https://singly.com'><img src='https://dev.singly.com/images/singly-button.png' /></a>
+      </footer>
+    </div>
+  </div>
+  <script type="text/javascript" charset="utf-8">
+    function querystring(key) {
+       var re=new RegExp('(?:\\?|&)'+key+'=(.*?)(?=&|$)','gi');
+       var r=[], m;
+       while ((m=re.exec(document.location.search)) != null) r.push(m[1]);
+       return r;
+    }
+
+    $.getJSON("https://api.singly.com/services", function(data) {
+        var redirURI = "http://" + window.location.host + "/callback";
+        function drawServices(profiles) {
+          $("#services-waiting").hide();
+          Object.keys(data).forEach(function(key) {
+            $("<li><a class='" + ((profiles && profiles[key] !== undefined) ? "authed" : "") + "' href='https://api.singly.com/oauth/authorize?redirect_uri=" + redirURI + "&client_id=59700043426f71197024972c18ab6dda&service=" + key + "'>" + key + "</a></li>").appendTo("#services");
+          });
+        }
+        if ($.cookie("token") !== null) {
+          $.getJSON("https://api.singly.com/profiles?access_token=" + $.cookie("token"), drawServices);
+        } else {
+          drawServices();
+        }
+    });
+  </script>
+</body>
+</html>

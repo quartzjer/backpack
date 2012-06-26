@@ -80,6 +80,7 @@ app.get('/callback', function(req, res) {
 
       req.session.profiles = profilesBody;
 
+      res.cookie("token", req.session.access_token);
       res.redirect('/');
     });
   });
