@@ -5,6 +5,8 @@
       "express": "*",
       "querystring": "*",
       "request": "*",
-      "sprintf": "*"
+	  "murmurhash3": "*",
+      "sprintf": "*",
+	  "adm-zip": "*"
    }
 }

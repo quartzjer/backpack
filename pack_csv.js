@@ -5,13 +5,17 @@ exports.csvize = function(entries, opt)
 {
   if(!opt) opt = {};
   if(!opt.delim) opt.delim = ',';
+  if(opt.delim == 'tab') opt.delim = '\t'; // easier
   if(!opt.eol) opt.eol = '\n';
   if(!opt.simple) opt.simple = true; // uses oembed only
   if(!opt.header) opt.header = true;
   var fields = {};
   var rows = [];
+  var seen = {};
   entries.forEach(function(entry){
     if(opt.simple && !entry.oembed) return;
+    if(seen[entry.id]) return;
+    seen[entry.id] = true; // skip 100% dups
     var r = idr.parse(entry.idr);
     var type = r.host+'_'+r.protocol;
     if(opt.simple) type = 'oembed_'+entry.oembed.type;
@@ -25,7 +29,11 @@ exports.csvize = function(entries, opt)
   var fields = Object.keys(fields); // flatten
   if(opt.header) ret += fields.join(opt.delim) + opt.eol;
   rows.forEach(function(row){
-    fields.map(function(field){ return row[field]||"" }).join(opt.delim) + opt.eol;
+    ret += fields.map(function(field){
+      if(!row[field] || typeof row[field] == 'object') return "";
+      if(typeof row[field] == 'string') return row[field].split(opt.delim).join(" ").replace(/\s+/g, " ");
+      return row[field].toString();
+    }).join(opt.delim) + opt.eol;
   });
   return ret;
 }
@@ -39,7 +47,7 @@ function fielder(type, data)
     // function return whole objects
     if(typeof map[key] === 'function'){
       var x = map[key](data);
-      if(x) Object.keys(x).forEach(function(xk){ ret[xk] = x[k] })
+      if(x) Object.keys(x).forEach(function(xk){ ret[xk] = x[xk] })
       return;
     };
     if(map._ignore && map._ignore.indexOf(key) >= 0) return;
@@ -48,9 +56,40 @@ function fielder(type, data)
   });
   if(map._also) {
     var x = map._also(data);
-    if(x) Object.keys(x).forEach(function(xk){ ret[xk] = x[k] })    
+    if(x) Object.keys(x).forEach(function(xk){ ret[xk] = x[xk] })    
   }
   return ret;
+}
+
+exports.oembed_contact = {
+  'title':function(data){ return {name:data.title} },
+  'description':function(data){ return {bio:data.description} },
+  'thumbnail_url':function(data){ return {image:data.thumbnail_url} },
+  'provider_name':function(data){ return {service:data.provider_name} },
+  '_ignore': ['type']
+}
+
+exports.oembed_checkin = {
+  'title':function(data){ return {place:data.title} },
+  'description':function(data){ return {text:data.description} },
+  'thumbnail_url':function(data){ return {image:data.thumbnail_url} },
+  'provider_name':function(data){ return {service:data.provider_name} },
+  '_ignore': ['type']
+}
+
+exports.oembed_link = {
+  'provider_name':function(data){ return {service:data.provider_name} },
+  '_ignore': ['type', 'provider_url', 'err', 'version', 'html', 'thumbnail_width', 'thumbnail_height']
+}
+
+exports.oembed_photo = {
+  'provider_name':function(data){ return {service:data.provider_name} },
+  '_ignore': ['type', 'provider_url', 'err', 'version', 'html', 'thumbnail_width', 'thumbnail_height']
+}
+
+exports.oembed_video = {
+  'provider_name':function(data){ return {service:data.provider_name} },
+  '_ignore': ['type', 'provider_url', 'err', 'version', 'html', 'thumbnail_width', 'thumbnail_height', 'height', 'width']
 }
 
 exports.twitter_tweet = {

@@ -88,16 +88,27 @@ app.get('/callback', function(req, res) {
 });
 
 var pack_csv = require("./pack_csv");
+var zip = require('adm-zip');
 
 app.get('/csv', function(req, res) {
   var type = req.query.type;
   var token = req.query.token;
   if(!type || !token) return res.send("missing type/token :(", 500);
-  request.get({uri:apiBaseUrl+'/types/'+type+'?access_token='+token, json:true}, function(err, resp, entries) {
+  request.get({uri:apiBaseUrl+'/types/'+type+'?min_count=10000&access_token='+token, json:true}, function(err, resp, entries) {
     if(err) return res.send(err, 500);
     if(!entries || entries.length == 0) return res.send("no entries", 500);
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(pack_csv.csvize(entries, req.query));
+    var csv = pack_csv.csvize(entries, req.query);
+    if(req.query.zip)
+    {
+      var z = new zip();
+      z.addFile(type+".csv", new Buffer(csv), "generated "+(new Date()).toString());
+      res.writeHead(200, {'Content-Type': 'application/zip'});
+      res.end(z.toBuffer(), 'binary');
+      console.error(z,z.toBuffer());
+    }else{
+      res.writeHead(200, {'Content-Type': 'text/plain'});
+      res.end(csv);
+    }
   });
 });
 
