@@ -97,7 +97,7 @@ app.get('/csv', function(req, res) {
     if(err) return res.send(err, 500);
     if(!entries || entries.length == 0) return res.send("no entries", 500);
     res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(pack_csv(entries, req.query));
+    res.end(pack_csv.csvize(entries, req.query));
   });
 });
 
