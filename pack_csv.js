@@ -1,4 +1,6 @@
 var idr = require('./idr');
+var path = require('path');
+var urllib = require('url');
 
 // convert an entry into csv, only first level
 exports.csvize = function(entries, opt)
@@ -12,6 +14,7 @@ exports.csvize = function(entries, opt)
   var fields = {};
   var rows = [];
   var seen = {};
+  var urls = {};
   entries.forEach(function(entry){
     if(opt.simple && !entry.oembed) return;
     if(seen[entry.id]) return;
@@ -20,9 +23,16 @@ exports.csvize = function(entries, opt)
     var type = r.host+'_'+r.protocol;
     if(opt.simple) type = 'oembed_'+entry.oembed.type;
     var row = fielder(type, (opt.simple) ? entry.oembed : entry.data);
-    row.at = (new Date(entry.at)).toString();
+    row._at = (new Date(entry.at)).toString();
+    row._id = entry.id;
+    row._service = r.host;
     Object.keys(row).forEach(function(field){ fields[field] = true }); // make sure we have all possible fields
     rows.push(row);
+    // hack for photos!
+    if(entry.oembed && entry.oembed.url){
+      var url = urllib.parse(entry.oembed.url);
+      urls[entry.oembed.provider_name+'/'+entry.id+'_'+path.basename(url.pathname)] = entry.oembed.url;
+    }
   });
   
   var ret = "";
@@ -35,7 +45,7 @@ exports.csvize = function(entries, opt)
       return row[field].toString();
     }).join(opt.delim) + opt.eol;
   });
-  return ret;
+  return {raw:ret, urls:urls};
 }
 
 // use optional custom remapping to turn any data into a flat key-value object
@@ -65,7 +75,6 @@ exports.oembed_contact = {
   'title':function(data){ return {name:data.title} },
   'description':function(data){ return {bio:data.description} },
   'thumbnail_url':function(data){ return {image:data.thumbnail_url} },
-  'provider_name':function(data){ return {service:data.provider_name} },
   '_ignore': ['type']
 }
 
@@ -73,22 +82,18 @@ exports.oembed_checkin = {
   'title':function(data){ return {place:data.title} },
   'description':function(data){ return {text:data.description} },
   'thumbnail_url':function(data){ return {image:data.thumbnail_url} },
-  'provider_name':function(data){ return {service:data.provider_name} },
   '_ignore': ['type']
 }
 
 exports.oembed_link = {
-  'provider_name':function(data){ return {service:data.provider_name} },
   '_ignore': ['type', 'provider_url', 'err', 'version', 'html', 'thumbnail_width', 'thumbnail_height']
 }
 
 exports.oembed_photo = {
-  'provider_name':function(data){ return {service:data.provider_name} },
   '_ignore': ['type', 'provider_url', 'err', 'version', 'html', 'thumbnail_width', 'thumbnail_height']
 }
 
 exports.oembed_video = {
-  'provider_name':function(data){ return {service:data.provider_name} },
   '_ignore': ['type', 'provider_url', 'err', 'version', 'html', 'thumbnail_width', 'thumbnail_height', 'height', 'width']
 }
 

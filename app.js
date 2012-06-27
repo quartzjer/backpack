@@ -4,6 +4,7 @@ var express = require('express');
 var querystring = require('querystring');
 var request = require('request');
 var sprintf = require('sprintf').sprintf;
+var async = require('async');
 
 // The port that this express app will listen on
 var port = 8442;
@@ -88,7 +89,7 @@ app.get('/callback', function(req, res) {
 });
 
 var pack_csv = require("./pack_csv");
-var zip = require('adm-zip');
+var zip = require("node-native-zip");
 
 app.get('/csv', function(req, res) {
   var type = req.query.type;
@@ -101,13 +102,26 @@ app.get('/csv', function(req, res) {
     if(req.query.zip)
     {
       var z = new zip();
-      z.addFile(type+".csv", new Buffer(csv), "generated "+(new Date()).toString());
-      res.writeHead(200, {'Content-Type': 'application/zip'});
-      res.end(z.toBuffer(), 'binary');
-      console.error(z,z.toBuffer());
+      z.add(type+".csv", new Buffer(csv.raw));
+      if(type!='photos' || !req.query.download)
+      {
+        res.writeHead(200, {'Content-Type': 'application/zip'});
+        res.end(z.toBuffer(), 'binary');
+        return;
+      }
+      async.forEach(Object.keys(csv.urls), function(key, cb){
+        console.log("fetching ",key,csv.urls[key]);
+        request.get({url:csv.urls[key]}, function(e,r,dat){
+          z.add(key, dat);
+          cb();
+        });
+      }, function(){
+        res.writeHead(200, {'Content-Type': 'application/zip'});
+        res.end(z.toBuffer(), 'binary');        
+      });
     }else{
       res.writeHead(200, {'Content-Type': 'text/plain'});
-      res.end(csv);
+      res.end(csv.raw);
     }
   });
 });
