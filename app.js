@@ -7,11 +7,11 @@ var sprintf = require('sprintf').sprintf;
 var async = require('async');
 
 // The port that this express app will listen on
-var port = 8442;
+var port = process.env.port || 8442;
 
 // Your client ID and secret from http://dev.singly.com/apps
-var clientId = process.argv[2] || '';
-var clientSecret = process.argv[3] || '';
+var clientId = process.env["OAUTH_CLIENT_ID"] || process.argv[2] || '';
+var clientSecret = process.env["OAUTH_CLIENT_SECRET"] || process.argv[3] || '';
 
 var hostBaseUrl = process.argv[4] || 'http://localhost:' + port;
 var apiBaseUrl = process.argv[5] || 'https://api.singly.com';
