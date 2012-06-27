@@ -8,6 +8,7 @@ var async = require('async');
 
 // The port that this express app will listen on
 var port = process.env.PORT || 8442;
+console.log("Using port: %d", port);
 
 // Your client ID and secret from http://dev.singly.com/apps
 var clientId = process.env["OAUTH_CLIENT_ID"] || process.argv[2] || '';
