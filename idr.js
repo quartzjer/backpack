@@ -1,6 +1,6 @@
 var url = require("url");
 var crypto = require("crypto");
-var mmh = require("murmurhash3");
+//var mmh = require("murmurhash3");
 
 // make sure it's parsed and clean up url-ish bits of the data we don't want
 exports.parse = function(idrStr) {
@@ -69,15 +69,18 @@ exports.clone = function(idr) {
 }
 
 exports.hash = function(idr) {
-  return mmh.murmur128HexSync(exports.toString(exports.parse(idr)));
+  return undefined;//mmh.murmur128HexSync(exports.toString(exports.parse(idr)));
 }
 
 exports.baseHash = function(idr) {
-  return mmh.murmur128HexSync(exports.toString(exports.base(exports.parse(idr))));
+  return undefined;//mmh.murmur128HexSync(exports.toString(exports.base(exports.parse(idr))));
 }
 
 exports.id = function(idr) {
+  /*
   var idh = exports.hash(idr);
   var idb = mmh.murmur128HexSync(exports.pid(idr));
   return idh + '_' + idb.substr(0,9);
+  */
+  return undefined;
 }

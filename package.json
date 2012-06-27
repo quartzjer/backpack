@@ -2,11 +2,15 @@
    "name": "backpack",
    "version": "0.0.1",
    "dependencies": {
-      "express": "*",
+      "async": "*",
+      "express": "<3.0",
       "querystring": "*",
       "request": "*",
-	  "murmurhash3": "*",
       "sprintf": "*",
 	  "node-native-zip": "*"
-   }
+   },
+   "engines": {
+    "node": "0.6.x",
+    "npm":  "1.0.x"
+  }
 }
