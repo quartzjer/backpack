@@ -5,7 +5,6 @@
       "express": "<3.0",
       "querystring": "*",
       "request": "*",
-	  "murmurhash3": "*",
       "sprintf": "*",
 	  "node-native-zip": "*"
    },
