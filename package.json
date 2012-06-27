@@ -2,6 +2,7 @@
    "name": "backpack",
    "version": "0.0.1",
    "dependencies": {
+      "async": "*",
       "express": "<3.0",
       "querystring": "*",
       "request": "*",

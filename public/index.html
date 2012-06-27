@@ -80,11 +80,21 @@
 
     $(function() {
 
-    $("#export_service_type").changed(function() {
+    $("#include_media").hide();
+    $("#export_service_type").change(function() {
       if ($("#export_service_type").val().toLowerCase() == "photos") {
         $("#include_media").show();
       } else {
         $("#include_media").hide();
+      }
+    });
+
+    $("#attach_photos").attr("disabled", "disabled");
+    $("#zip_file").change(function() {
+      if ($("#zip_file").is(":checked")) {
+        $("#attach_photos").removeAttr("disabled");
+      } else {
+        $("#attach_photos").attr("disabled", "disabled");
       }
     });
 
@@ -93,7 +103,8 @@
       var type = $("#export_service_type");
       if (!type) return;
       var zip = $("#zip_file").is(":checked") ? true : false;
-      $("#export_link").attr("href", "http://" + window.location.host + "/csv?type=" + type.val().toLowerCase() + (zip ? "&zip=true":"") + "&token=" + $.cookie("token"));
+      var attach = !$("#attach_photos").is(":disabled") && $("#attach_photos").is(":checked") ? true : false;
+      $("#export_link").attr("href", "http://" + window.location.host + "/csv?type=" + type.val().toLowerCase() + (zip ? "&zip=true":"") + (attach ? "&download=true" : "") + "&token=" + $.cookie("token"));
       $("#export_link").show();
     });
 
