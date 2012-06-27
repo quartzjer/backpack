@@ -2,7 +2,7 @@
    "name": "backpack",
    "version": "0.0.1",
    "dependencies": {
-      "express": "*",
+      "express": "<3.0",
       "querystring": "*",
       "request": "*",
 	  "murmurhash3": "*",
