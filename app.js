@@ -112,7 +112,7 @@ app.get('/csv', function(req, res) {
       async.forEach(Object.keys(csv.urls), function(key, cb){
         console.log("fetching ",key,csv.urls[key]);
         request.get({url:csv.urls[key]}, function(e,r,dat){
-          z.add(key, dat);
+          if(dat) z.add(key, dat);
           cb();
         });
       }, function(){

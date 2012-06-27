@@ -31,7 +31,7 @@ exports.csvize = function(entries, opt)
     // hack for photos!
     if(entry.oembed && entry.oembed.url){
       var url = urllib.parse(entry.oembed.url);
-      urls[entry.oembed.provider_name+'/'+entry.id+'_'+path.basename(url.pathname)] = entry.oembed.url;
+      urls[r.host+'/'+entry.id+'_'+path.basename(url.pathname)] = entry.oembed.url;
     }
   });
   
